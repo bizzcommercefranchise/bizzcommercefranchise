@@ -8,6 +8,7 @@ namespace App\Domains\Provider\Http\Controllers;
 use Auth;
 use Config;
 use App\Domains\Product\Interfaces\ProductServiceInterface;
+use App\Domains\Product\Interfaces\ProductCategoryServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
@@ -24,7 +25,9 @@ use App\Domains\Login\Models\UserRoles;
 use App\Domains\Login\Models\Franchises;
 use App\Domains\Provider\Models\Providers;
 use App\Domains\Provider\Models\Locations;
+use App\Domains\Product\Models\Product;
 use App\Domains\Provider\Models\ProviderUsers;
+use App\Domains\Product\Models\ProductCategory;
 use App\Domains\Provider\Services\ProviderService;
 use Illuminate\Validation\Rules;
 use App\Domains\Provider\Services\ProviderUserService;
@@ -44,23 +47,31 @@ class ProviderHomeController extends Controller
     public $franchiseService;
     public $providerService;
     public $locationService;
+    public $productService;    
+    public $productCategoryService;
     protected $model;
     protected $model2;
     protected $model3;
     protected $model4;  
     protected $model5;  
     protected $model6;  
-    public function __construct(FranchiseServiceInterface $franchiseService,ProviderServiceInterface $providerService,LocationServiceInterface $locationService,Providers $providers,Users $users,UserRoles $roles,Usercredentials $usercredentials, ProviderUsers $provideruser, Locations $locations)
+    protected $model7;  
+    protected $model8;  
+    public function __construct(FranchiseServiceInterface $franchiseService,ProviderServiceInterface $providerService,LocationServiceInterface $locationService,ProductServiceInterface $productService,ProductCategoryServiceInterface $productCategoryService,Providers $providers,Users $users,UserRoles $roles,Usercredentials $usercredentials,ProviderUsers $provideruser,Locations $locations,Product $product,ProductCategory $productCategory)
     {
         $this->franchiseService = $franchiseService;
         $this->providerService = $providerService;
         $this->locationService = $locationService;
+        $this->productService = $productService;
+        $this->productCategoryService = $productCategoryService;
         $this->model = new Repository($providers);
         $this->model2 = new Repository($users);
         $this->model3 = new Repository($roles);
         $this->model4 = new Repository($usercredentials);    
         $this->model5 = new Repository($provideruser);    
-        $this->model6 = new Repository($locations);    
+        $this->model6 = new Repository($locations);           
+        $this->model7 = new Repository($product);   
+        $this->model8 = new Repository($productCategory);    
     }
     /**
      * Display the login view.
@@ -480,7 +491,9 @@ class ProviderHomeController extends Controller
             {
               return view('home.provider.loginHome');
             }elseif($host == $businessunit_url){
-              return view('home.enduser.loginHome');
+                $homeUrl = "/enduserHome";
+                return redirect()->intended($homeUrl);                  
+            //   return view('home.enduser.loginHome');
             }
         }
         echo "You are not authorise to access this url, please try again latter."; 
@@ -701,4 +714,186 @@ class ProviderHomeController extends Controller
          throw $e;
         }        
     }
+    public function productShow(Request $request):View
+    {
+            $provider=null;
+            if(session()->get('provider_id') != null)
+            {
+                $provider =session()->get('provider_id');
+                $productList = DB::table('products')
+                            ->select('products.id as pid','products.product_category_id','product_categories.id','products.provider_id','products.name as productname','products.cost','product_categories.name','product_categories.provider_id','product_categories.franchise_id')
+                            ->leftJoin('product_categories','products.product_category_id','=','product_categories.id')
+                            ->where('products.provider_id', '=', $provider)
+                            //->groupBy('products.product_category_id','product_categories.id','products.provider_id','products.name','products.cost','product_categories.name')
+                        ->get();         
+
+                $productCategoryList = DB::table('product_categories')
+                            ->select('products.product_category_id','product_categories.id','products.provider_id','products.name as productname','products.cost','product_categories.name','product_categories.provider_id','product_categories.franchise_id')
+                            ->leftJoin('products','product_categories.id','=','products.product_category_id')
+                            ->where('products.provider_id', '=', $provider)
+                        //    ->groupBy('products.product_category_id','product_categories.id','products.provider_id','products.name','products.cost','product_categories.name','product_categories.provider_id','product_categories.franchise_id')
+                        ->get();
+                                    
+                // $productList = $this->productService->getCompleteList();
+                // SELECT * FROM product_categories 
+                // left join products on product_categories.id= products.product_category_id where products.provider_id=2;        
+                // $productCategoryList = $this->productCategoryService->getCompleteList();
+                return view('home.provider.productList', ['products' => $productList,'productCategories' => $productCategoryList]); 
+            } else {
+                return view('home.provider.loginHome'); 
+            }
+    }
+    public function createProduct():View
+    {
+            $provider=null;
+            if(session()->get('provider_id') != null)
+            {
+                $provider =session()->get('provider_id');
+                $productList = DB::table('products')
+                            ->select('products.id as pid','products.product_category_id','product_categories.id','products.provider_id','products.name','products.cost','product_categories.name','product_categories.provider_id','product_categories.franchise_id','products.id')
+                            ->leftJoin('product_categories','products.product_category_id','=','product_categories.id')
+                            ->where('products.provider_id', '=', $provider)
+                            //->groupBy('products.product_category_id','product_categories.id','products.provider_id','products.name','products.cost','product_categories.name')
+                        ->get();         
+
+                $productCategoryList = DB::table('product_categories')
+                            ->select('products.product_category_id','product_categories.id','products.provider_id','products.name','products.cost','product_categories.name','product_categories.provider_id','product_categories.franchise_id')
+                            ->leftJoin('products','product_categories.id','=','products.product_category_id')
+                            ->where('products.provider_id', '=', $provider)
+                        //    ->groupBy('products.product_category_id','product_categories.id','products.provider_id','products.name','products.cost','product_categories.name','product_categories.provider_id','product_categories.franchise_id')
+                        ->get();
+//                print_r($productCategoryList); exit;
+                    return view('home.provider.addProduct',['products' => $productList,'productcategories' => $productCategoryList]); 
+            } else {
+                       return view('home.provider.loginHome'); 
+            }
+    }    
+    public function editProduct(Request $request):View
+    {
+        $id = $request->id;
+        $productList = $this->productService->getById($id);
+//        $productList = $this->productService->getCompleteList();
+        $productCategoryList = $this->productCategoryService->getCompleteList();    
+        // print_r($productList); exit;   
+        return view('home.provider.editProduct', ['productshow' => $productList, 'productCategoryShow' => $productCategoryList]);             
+    }
+    public function providerProductStore(Request $request)
+    {
+    
+        if(!isset($request->name) || empty($request->name)){
+            echo "Please enter product name";
+            return false;
+        }
+//        elseif(!isset($request->category_id) || empty($request->category_id)){
+//            echo "Please select category";
+//            return false;
+//        }
+        elseif(!isset($request->cost) || empty($request->cost)){
+            echo "Please enter cost";
+            return false;
+        }     
+        $user_id = Session::get('user_id');
+        $role_id = $request->role_id;
+        $provider =session()->get('provider_id');
+        $franchise_id = null;
+        if(!empty($user_id)){
+            $user = DB::table('users')
+                    ->where('id', '=', $user_id)
+                    ->get();  
+            if(count($user) > 0){
+             $franchise_id = $user[0]->franchise_id;
+            }
+        } else {
+            $franchise_id = null;
+        }
+//        echo $franchise_id; exit;
+        if(!empty($user_id)){
+            $createdby =  Session::get('user_id');
+        } else {
+            $createdby = null;
+        }
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'cost' => ['required', 'string', 'max:255']
+        ]);
+        
+        $data = array(
+            'franchise_id' => $franchise_id,
+            'name' => $request->name,
+            'cost' => $request->cost,
+            'provider_id' => $provider,
+            'product_category_id' => $request->category_id
+        );
+//        print_r($data); exit;
+        $providerArray = $this->model7->create($data);
+        
+        echo "Product saved successfully.";
+    }    
+    public function productUpdate(Request $request, $id)
+    {
+
+        try
+        {
+           $productCategory = null;
+           $franchise = null; 
+           $provider = null;
+           if(!isset($request->name) || empty($request->name)){
+               echo "Please enter name";
+               return false;
+           }elseif(!isset($request->cost) || empty($request->cost)){
+               echo "Please enter cost";
+               return false;
+           }
+           $productArray = array();
+           $product = DB::table('products')
+                    ->select('*')
+                    ->where('products.id', '=', $id)
+                    ->get();
+            if(count($product) > 0){
+                $productCategory = $product[0]->product_category_id; 
+                $franchise = $product[0]->franchise_id; 
+                $provider = $product[0]->provider_id;
+            }
+            if(isset($request->category_id)){
+                $productCategory = $request->category_id; 
+            } 
+           $productArray = array(
+                'name' => $request->name,
+                'cost' => $request->cost,
+                'product_category_id' => $productCategory,
+                'franchise_id' => $franchise,
+                'provider_id' => $provider
+           );
+        //    print_r($productArray); exit;
+           if(!empty($request->category_id) || !empty($productCategory)){
+            $franchise = $product[0]->franchise_id; 
+           } else {
+             unset($productArray[2]);
+           }
+        //    echo $productCategory; exit;
+           if(!empty($franchise)){
+            $franchise = $product[0]->franchise_id; 
+          } else {
+           unset($productArray[3]);
+          }
+          if(!empty($provider)){
+            $provider = $product[0]->provider_id;
+          } else {
+           unset($productArray[4]);
+          } 
+        //   print_r($productArray); exit;                   
+           $this->productService->update($productArray, $id);
+           echo "Updated product successfully"; 
+        } catch(Exception $e) {
+         throw $e;
+        }  
+    }
+    public function destroyProduct($id)
+    {
+        $this->productService->delete($id);
+        $productList = $this->productService->getCompleteList();
+        $productCategoryList = $this->productCategoryService->getCompleteList();
+        return view('home.provider.providerProductList',['products' => $productList,'productCategories' => $productCategoryList]);   
+    }
+
 }

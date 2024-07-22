@@ -1,7 +1,9 @@
 <?php
+namespace App\Domains\Product\Http\Controllers;
 namespace App\Domains\Login\Http\Controllers;
 namespace App\Http\Controllers;
 namespace App\Http\Controllers\Auth;
+
 
 use Config;
 //use Auth;
@@ -27,6 +29,8 @@ use App\Domains\Franchise\Interfaces\FranchiseServiceInterface;
 use App\Repositories\Repository;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Password;
+use App\Domains\Product\Services\ProductCategoryService;
+use App\Domains\Product\Interfaces\ProductServiceInterface;
 
 class ProviderController extends Controller
 {
@@ -50,6 +54,7 @@ class ProviderController extends Controller
      */
     public function store(Request $request)
     {
+        // echo "test"; exit;
         if(!isset($request->email) || empty($request->email)){
             echo "Please enter email";
             return false;
@@ -79,10 +84,17 @@ class ProviderController extends Controller
                 $request->session()->regenerate();               
     //$user = Auth::user();
     //$id = Auth::id();
-                $data = session()->all();
+                // $data = session()->all();
+
+                // echo "<pre>";
+                // print_r($user_role); exit;
+
+                
                 Session::put('username', $credentials['email']);
                 Session::put('role_id', $user_role[0]->role_id);
                 Session::put('user_id', $user[0]->user_id);
+                // echo session()->get('role_id'); exit;
+                
                 if(session()->get('role_id') == 3){
                     $url = '/admin/dashboard';
                 } elseif(session()->get('role_id') == 1){

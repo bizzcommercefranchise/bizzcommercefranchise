@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Domains\Product\Interfaces\ProductServiceInterface;
 use App\Domains\Login\Models\Usercredentials;
+use App\Domains\Login\Models\Usercredential;
 use App\Domains\Login\Models\Users;
 use App\Domains\Login\Models\UserRoles;
 use App\Domains\Login\Models\Franchises;
@@ -32,7 +33,7 @@ use App\Repositories\Repository;
 use App\Domains\Provider\Models\Providers;
 use App\Domains\Provider\Models\ProviderUsers;
 use App\Domains\Provider\Services\ProviderService;
-
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 class EndUserController extends Controller
 {
@@ -133,9 +134,13 @@ class EndUserController extends Controller
          throw $e;
         }             
     }
+    public function enduserHomeLogin(Request $request):View
+    {
+        return view('home.enduser.loginHome'); 
+    }
     public function enduserHome(Request $request):View
     {
-        if(session()->get('user_id') != null){
+        //if(session()->get('user_id') != null){
             $user_id = session()->get('user_id');
             $franchise_id = null;
             $provider_id = null;
@@ -146,17 +151,63 @@ class EndUserController extends Controller
             }
     //      $category = DB::table('products')->where('id', $user_id)->get(); 
 
-            $products = DB::table('products')->where('franchise_id', $franchise_id)
-                            ->where('provider_id', $provider_id)
+            $products = DB::table('products')
+                            // ->where('franchise_id', $franchise_id)
+                            // ->where('provider_id', $provider_id)
                             ->get();
 
             return view('home.enduser.productsHome', ['products' => $products]);
-        } else {
-          return view('home.enduser.loginHome');
-        }        
+        // } else {
+        //   return view('home.enduser.loginHome');
+        // }        
+    }
+    public function enduserHomeProducts(Request $request)
+    {
+        //if(session()->get('user_id') != null){
+            $user_id = session()->get('user_id');
+    //      $category = DB::table('products')->where('id', $user_id)->get(); 
+
+            $products = DB::table('products')
+                            ->get();
+
+            return view('home.enduser.productsHome', ['products' => $products]);        
     }
     public function endUserHomeStore(Request $request)
     {
+
+
+        $credentials = $request->only($request->email, $request->password);
+
+        $credentials = [
+            'username' => $request->email,
+            'password' => md5($request->password),
+            ];
+            // print_r($credentials); exit;
+            if (Auth::attempt($credentials)) {
+        //        if (Auth::guard('web')->attempt($credentials, false, false)) {
+        //         return ['result' => 'ok'];
+        //         }
+        
+        // return ['result' => 'not ok'];
+        // exit;
+
+
+        // $request->Authenticate();
+        // $user = Auth::Usercredentials();
+        // $user = Auth::Usercredential()->where('email', $request->email)->exists();
+        // print_r($user); exit;
+
+        $credetials = [
+            'email' => $request->email,
+            'password' => $request->password,
+            ];
+/*            if (Auth::attempt($credetials)) {
+            return redirect('/home')->with('success', 'Login berhasil'); 
+            } else {
+                echo "inside else condition"; exit;
+            }
+            exit; */
+
         if(!isset($request->email) || empty($request->email)){
             echo "Please enter email";
             return false;
@@ -197,10 +248,11 @@ class EndUserController extends Controller
                 $url = '';
                 $request->session()->regenerate();
     //$id = Auth::id();
+    
                 if(count($provider) > 0){
                     $provider_id = $provider[0]->id;
                 }
-                $data = session()->all();
+
                 Session::put('username', $credentials['email']);
                 Session::put('role_id', $user_role[0]->role_id);              
                 Session::put('user_id', $user[0]->user_id);
@@ -208,7 +260,7 @@ class EndUserController extends Controller
                 Session::put('provider_id', $provider_id);
                 if($franchiseId !="" || $provider_id !=""){
                     if(session()->get('role_id') == 1){
-                       $url = '/enduserHome/dashboard';
+                       $url = '/enduserProductHome/dashboard';
                     } elseif(session()->get('role_id') == 2 || session()->get('role_id') == 4 || session()->get('role_id') == 3){
                        echo "You are not authorised person to access this url"; exit;
                     } 
@@ -222,6 +274,11 @@ class EndUserController extends Controller
         } catch(Exception $e) {
           throw $e;
         }
+    } else {
+        echo "not attempt";
+    }
+    // exit;
+
     }
     public function profileEdit(Request $request):View
     {
@@ -242,9 +299,11 @@ class EndUserController extends Controller
             return false;
         } 
         $provider = null;
+
         if(Session::get('provider_id') !=null){   
             $provider = Session::get('provider_id');
         }
+
         try
         {
             if(isset($request->name) || isset($request->last_name) 

@@ -5,12 +5,15 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Domains\Product\Services\ProductService;
+use App\Domains\Product\Services\ProductCategoryService;
 use App\Domains\Franchise\Services\FranchiseService;
 use App\Domains\Login\Services\LoginService;
 use App\Domains\Product\Interfaces\ProductServiceInterface;
+use App\Domains\Product\Interfaces\ProductCategoryServiceInterface;
 use App\Domains\Login\Interfaces\LoginServiceInterface;
 use App\Domains\Franchise\Interfaces\FranchiseServiceInterface;
 use App\Domains\Product\Models\Product;
+use App\Domains\Product\Models\ProductCategory;
 use App\Domains\Franchise\Models\Franchise;
 use App\Domains\Login\Models\Users;
 use App\Domains\Provider\Models\Providers;
@@ -47,7 +50,10 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->bind(LocationServiceInterface::class, function () {
             return new LocationService(new Locations);
-        });        
+        });
+         $this->app->bind(ProductCategoryServiceInterface::class, function () {
+             return new ProductCategoryService(new ProductCategory);
+         });                 
     }
 
     /**

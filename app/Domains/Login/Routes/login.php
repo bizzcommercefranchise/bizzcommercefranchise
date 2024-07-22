@@ -146,10 +146,18 @@ Route::post('userHome/login', [ProviderHomeController::class, 'userHomeStore'])-
 Route::post('homeEndUser/store', EndUserController::class .'@store')->name('homeEndUser.store');
 Route::get('homeEndUser/register', EndUserController::class .'@create')->name('homeEndUser.register');
 Route::post('enduserHome/login', [EndUserController::class, 'endUserHomeStore'])->name('enduserHome.login.post');
+Route::get('/enduserProductHome/dashboard', [EndUserController::class, 'enduserHome']);
+Route::get('/enduserHome', [EndUserController::class, 'enduserHomeProducts']);
 Route::get('/enduserHome/dashboard', [EndUserController::class, 'enduserHome']);
+Route::get('/enduserProductHome/login', [EndUserController::class, 'enduserHomeLogin'])->name('home.enduser.loginHome');
 Route::get('/enduserHome/profileEdit/{id}', [EndUserController::class, 'profileEdit'])->name('profile.edit');
 Route::get('/homeEndUser/update/{id}', [EndUserController::class, 'endUserUpdate'])->name('homeEndUser.update');
-
+ Route::get('/home/providerProductList', ProviderHomeController::class . '@productShow')->name('providerProductsList');
+ Route::get('/home/providerAddProduct', ProviderHomeController::class . '@createProduct')->name('provider.homeProductAdd');
+Route::post('/home/providerProductStore', ProviderHomeController::class .'@providerProductStore')->name('provider.homeProductStore'); 
+Route::get('/home/providerProductEdit/{id}', ProviderHomeController::class . '@editProduct')->name('provider.homeProductEdit');
+Route::post('/providers/homeProductUpdate/{id}',ProviderHomeController::class.'@productupdate')->name('provider.homeProductUpdate');
+Route::get('home/providerProductDelete/{id}', ProviderHomeController::class . '@destroyProduct')->name('provider.homeProductDelete');
 
 
 

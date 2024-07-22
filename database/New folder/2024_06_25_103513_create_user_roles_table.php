@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('user_roles', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('user_id')->unsigned()->nullable();   
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->integer('provider_id')->unsigned()->nullable();   
+            $table->integer('user_id')->nullable();  
+            $table->integer('provider_id')->unsigned()->nullable();
             $table->foreign('provider_id')->references('id')->on('providers')->onDelete('cascade');
-            $table->integer('role_id')->unsigned()->nullable();   
+            $table->integer('role_id')->unsigned()->nullable();
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->integer('status')->default(1);
             $table->integer('created_by')->nullable();
@@ -26,7 +25,8 @@ return new class extends Migration
             $table->integer('updated_by')->nullable();
             $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
             $table->integer('deleted_by')->nullable();
-            $table->timestamp('deleted_at')->nullable()->default(null);            
+            $table->timestamp('deleted_at')->nullable()->default(null);
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

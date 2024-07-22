@@ -13,7 +13,10 @@
                                 {{ $message }}
                             </div>
                         @elseif(session()->get('role_id') == 2)
-                            <a href="{{ route('providerUsersList') }}"
+                        <a href="{{ route('providerProductsList') }}"
+                        class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Products</a>                        
+                        <br>
+                        <a href="{{ route('providerUsersList') }}"
                             class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Users</a>                        
                         @elseif(session()->get('role_id') == 3)
                         <!--<a href=""> <?php //echo  'admin'. '.'.url(''); ?></a>-->
@@ -28,10 +31,7 @@
                         @elseif(session()->get('role_id') == 4)
                         <a href="{{ route('homeProvidersList') }}"
                             class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Providers</a>
-                        <br> 
-                        <div class="alert alert-success">
-                                You are logged in!
-                         </div>  
+                        <br>  
                         @else
                             <div class="alert alert-success">
                                 You are logged in!

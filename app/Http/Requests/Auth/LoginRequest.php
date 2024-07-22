@@ -50,7 +50,7 @@ class LoginRequest extends FormRequest
 
         $user = Usercredentials::where('username',$this->login)
                         ->first();
-print_r($user); exit;
+// print_r($user); exit;
         // if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
         if (! $user || !Hash::check($this->password,$user->password)) {
             

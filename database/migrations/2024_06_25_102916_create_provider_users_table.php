@@ -14,10 +14,8 @@ return new class extends Migration
         Schema::create('provider_users', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('user_id')->unsigned()->index()->nullable();
-          
-            // $table->integer('user_id')->nullable();
-            $table->integer('provider_id')->index()->nullable();
+            $table->integer('user_id')->unsigned()->nullable();
+            $table->integer('provider_id')->unsigned()->nullable();
             $table->string('name',255);
             $table->string('email',255);
             $table->integer('status')->default(1);

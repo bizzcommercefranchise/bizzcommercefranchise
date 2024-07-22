@@ -60,6 +60,7 @@ class UserController extends Controller
     public function providerUserShow():View
     {
        $provider = Session::get('provider_id'); 
+       
 //       $providerUserList = $this->providerUserService->getById($provider);
     
        
@@ -77,8 +78,8 @@ class UserController extends Controller
 
         $userShow = DB::select($query);
 
-
-//        print_r($providerShow); exit;
+        // echo Session::get('user_id'); exit;
+    //    print_r($userShow); exit;
        return view('home.provider.userlist', ['users' => $userShow]);
     }    
     public function create(): View

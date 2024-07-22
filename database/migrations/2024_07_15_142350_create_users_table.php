@@ -15,7 +15,7 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->integer('franchise_id')->unsigned()->nullable();   
-            $table->integer('primary_provider_id')->nullable();   
+            $table->integer('primary_provider_id')->unsigned()->nullable();   
             $table->string('first_name',255);
             $table->string('last_name',255);
             $table->string('email',255);

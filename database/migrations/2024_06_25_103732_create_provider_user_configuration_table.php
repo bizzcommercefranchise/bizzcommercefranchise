@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('franchise_configuration', function (Blueprint $table) {
+        Schema::create('provider_user_configuration', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('franchise_id')->unsigned()->nullable();           
+            $table->integer('provider_user_id')->unsigned()->nullable();   
             $table->string('configuration',45);
             $table->string('value',45);
             $table->integer('status')->default(1);
@@ -23,8 +23,8 @@ return new class extends Migration
             $table->integer('updated_by')->nullable();
             $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
             $table->integer('deleted_by')->nullable();
-            $table->timestamp('deleted_at')->nullable()->default(null);
-            $table->foreign('franchise_id')->references('id')->on('franchises')->onDelete('cascade');    
+            $table->timestamp('deleted_at')->nullable()->default(null); 
+            $table->foreign('provider_user_id')->references('id')->on('provider_users')->onDelete('cascade');
         });
     }
 
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('franchise_configuration');
+        Schema::dropIfExists('provider_user_configuration');
     }
 };
