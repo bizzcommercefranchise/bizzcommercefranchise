@@ -24,8 +24,9 @@
                     <tbody>
                         <?php
                             $i=1;
-                            foreach($users as $user){
-                              if($user->id != Session::get('provider_id')){
+                            // print_r($users); exit;
+                            if(!empty($users)){
+                              foreach($users as $user){
                         ?>                        
                       <tr>
                         <th scope="row"><?php echo $i; ?></th>
@@ -38,8 +39,8 @@
                       </tr>
                         <?php
                                 $i++;
+                              }
                             }
-                          }
                             // exit;
                         ?>                      
                     </tbody>

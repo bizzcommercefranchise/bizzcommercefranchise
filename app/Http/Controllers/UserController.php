@@ -59,28 +59,26 @@ class UserController extends Controller
     }
     public function providerUserShow():View
     {
-       $provider = Session::get('provider_id'); 
-       
+         $provider = Session::get('provider_id'); 
+         $userShow = array();
 //       $providerUserList = $this->providerUserService->getById($provider);
-    
-       
- /*      $providerShow = DB::table('users')
-                    ->select('*')
-                    ->leftJoin('provider_users as provider_users1','users.id','=','provider_users1.user_id')
-//                    ->leftJoin('provider_users as provider_users2','users.primary_provider_id','=','provider_users2.provider_id')
-                    ->leftJoin('providers','users.primary_provider_id','=','providers.id')
-                    ->where('users.primary_provider_id', '=', $provider)
-                    ->get(); */
-//        echo $provider; exit;
-        $query = "select a.id,a.primary_provider_id,a.email as useremail,a.first_name,a.last_name,b.id as providerid from users as a 
-        left join providers as b on a.primary_provider_id=b.id 
-        where a.primary_provider_id=$provider";
+        $users = DB::table('users')
+                ->select('*')
+                ->where('users.primary_provider_id', '=', $provider)
+                ->first();
+        if(empty($users)){
+             $userShow = null;
+        } else {
+            $query = "select a.id,a.primary_provider_id,a.email as useremail,a.first_name,a.last_name,b.id as providerid from users as a 
+            left join providers as b on a.primary_provider_id=b.id 
+            where a.primary_provider_id=$provider and a.id !=$users->id";
 
-        $userShow = DB::select($query);
+            $userShow = DB::select($query);
+        }
+            // echo Session::get('user_id'); exit;
+        //    print_r($userShow); exit;
+        return view('home.provider.userlist', ['users' => $userShow]);
 
-        // echo Session::get('user_id'); exit;
-    //    print_r($userShow); exit;
-       return view('home.provider.userlist', ['users' => $userShow]);
     }    
     public function create(): View
     {

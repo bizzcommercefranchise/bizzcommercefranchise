@@ -35,7 +35,7 @@
                                 <?php } 
                                 }?>
                                 <?php //} else { ?> 
-                        <a class="nav-link {{ (request()->is('login')) ? 'active' : '' }}" href="{{ route('home.enduser.loginHome') }}"><?php if($productHomeUri == 'enduserHome') { echo 'Login'; }?></a>
+                        <a class="nav-link {{ (request()->is('login')) ? 'active' : '' }}" href="{{ route('home.enduser.loginHome') }}"><?php if($productHomeUri == 'enduserHome' && session()->get('user_id') ==null) { echo 'Login'; }?></a>
                      <?php //} ?>
                     </li>
                     <?php if(session()->get('username') ==""){ ?>

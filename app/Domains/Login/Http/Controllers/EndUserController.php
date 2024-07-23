@@ -136,7 +136,10 @@ class EndUserController extends Controller
     }
     public function enduserHomeLogin(Request $request):View
     {
-        return view('home.enduser.loginHome'); 
+        $user_id = session()->get('user_id');
+        if($user_id ==null){ 
+            return view('home.enduser.loginHome'); 
+        } 
     }
     public function enduserHome(Request $request):View
     {

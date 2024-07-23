@@ -1,7 +1,7 @@
 @extends('auth.franchise_layouts')
 
 @section('content')
-
+<?php if(empty(session()->has('username'))) { ?>
         <div class="row justify-content-center mt-5">
             <div class="col-md-8">
                 <div class="card">
@@ -78,5 +78,7 @@
                 </div>
             </div>    
         </div>
-
+ <?php } else { ?>
+    <script>window.location = "/franchise/dashboard";</script>
+<?php } ?>
 @endsection

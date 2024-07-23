@@ -52,7 +52,11 @@ class FranchiseHomeController extends Controller
      */
     public function create(): View
     {
-        return view('franchise.franchisehome_register');
+        if(session()->get('user_id') != null){        
+            return view('franchise.franchisehome_register');
+        } else {
+            return view('franchise/dashboard');
+        }
     }
 
     public function store(Request $request)

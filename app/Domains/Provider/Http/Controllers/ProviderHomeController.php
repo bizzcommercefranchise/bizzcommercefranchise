@@ -91,27 +91,44 @@ class ProviderHomeController extends Controller
     }
     public function showLocations(): View
     {
-        $franchise = null;
-        if(!empty(session()->get('franchiseid'))){
-            $franchise = session()->get('franchiseid');
+        if(session()->get('user_id') != null){        
+            $franchise = null;
+            if(!empty(session()->get('franchiseid'))){
+                $franchise = session()->get('franchiseid');
+            }
+        //     $location = DB::table('providers')
+        //     ->select('*')
+        //     ->where('franchise_id', '=', $franchise)
+        //     ->get();
+        // foreach($location as $val){
+        //     $location_id = $val->location_id;
+            $locationsList = DB::table('locations')
+                        ->select('locations.id','locations.name','locations.address','locations.city',
+                                'locations.state','locations.country','locations.postal_code',
+                                'providers.location_id','providers.franchise_id')
+                        ->leftJoin('providers','locations.id','=','providers.location_id')
+                        ->where('providers.franchise_id', '=', $franchise)
+                        // ->where('providers.location_id', '=', $location_id)
+                        ->groupBy('locations.id','locations.name','locations.address','locations.city',
+                                'locations.state','locations.country','locations.postal_code',
+                                'providers.location_id','providers.franchise_id')->get();  
+    //        print_r($locationsList); exit;
+    //        $locationsList = $this->locationService->getCompleteList();
+            
+    //SELECT * FROM locations 
+    //left join providers on locations.id = providers.location_id 
+    //where providers.franchise_id=1 
+    //GROUP by locations.id;   
+
+
+
+    // }
+
+            return view('home.provider.homeLocationList', ['locations' => $locationsList]);
+        } else {
+            return view('auth.franchisehome');
         }
-        $locationsList = DB::table('locations')
-                    ->select('locations.id','locations.name','locations.address','locations.city',
-                            'locations.state','locations.country','locations.postal_code',
-                            'providers.location_id','providers.franchise_id')
-                    ->leftJoin('providers','locations.id','=','providers.location_id')
-                    ->where('providers.franchise_id', '=', $franchise)
-                    ->groupBy('locations.id','locations.name','locations.address','locations.city',
-                            'locations.state','locations.country','locations.postal_code',
-                            'providers.location_id','providers.franchise_id')->get();  
-//        print_r($locationsList); exit;
-//        $locationsList = $this->locationService->getCompleteList();
-        
-//SELECT * FROM locations 
-//left join providers on locations.id = providers.location_id 
-//where providers.franchise_id=1 
-//GROUP by locations.id;        
-        return view('home.provider.homeLocationList', ['locations' => $locationsList]);
+
     }
     public function create():View
     {
@@ -283,26 +300,34 @@ class ProviderHomeController extends Controller
     }
     public function edit(Request $request): View
     {
-        $id = $request->id;
-//        $userShow = $this->loginService->getById($id);
-        $providerShow = DB::table('providers')
-                    ->select('providers.id','providers.name','providers.location_id','users.email','users.first_name','users.last_name','user_credentials.password')
-                    ->leftJoin('provider_users','providers.id','=','provider_users.provider_id')
-                    ->leftJoin('franchises','providers.franchise_id','=','franchises.id')
-                    ->leftJoin('users','provider_users.user_id','=','users.id')
-                    ->leftJoin('user_credentials','provider_users.user_id','=','user_credentials.user_id')
-                    ->where('providers.id', '=', $id)
-                    ->first();
-        $providerList = $this->providerService->getCompleteList();
-        $franchiseList = $this->franchiseService->getCompleteList();
-        $locationList = $this->locationService->getCompleteList();
-        return view('home.provider.editHomeProvider',['providershow' => $providerShow,'providers' => $providerList,'franchises' => $franchiseList,'locations' => $locationList]);
+        if(session()->get('user_id') != null){           
+            $id = $request->id;
+    //        $userShow = $this->loginService->getById($id);
+            $providerShow = DB::table('providers')
+                        ->select('providers.id','providers.name','providers.location_id','users.email','users.first_name','users.last_name','user_credentials.password')
+                        ->leftJoin('provider_users','providers.id','=','provider_users.provider_id')
+                        ->leftJoin('franchises','providers.franchise_id','=','franchises.id')
+                        ->leftJoin('users','provider_users.user_id','=','users.id')
+                        ->leftJoin('user_credentials','provider_users.user_id','=','user_credentials.user_id')
+                        ->where('providers.id', '=', $id)
+                        ->first();
+            $providerList = $this->providerService->getCompleteList();
+            $franchiseList = $this->franchiseService->getCompleteList();
+            $locationList = $this->locationService->getCompleteList();
+            return view('home.provider.editHomeProvider',['providershow' => $providerShow,'providers' => $providerList,'franchises' => $franchiseList,'locations' => $locationList]);
+        } else {
+            return view('auth.franchisehome'); 
+        }            
     }
     public function editLocation(Request $request): View
     {
-        $id = $request->id;
-        $locationList = $this->locationService->getById($id);
-        return view('home.provider.editLocation', ['locations' => $locationList]);
+        if(session()->get('user_id') != null){      
+            $id = $request->id;
+            $locationList = $this->locationService->getById($id);
+            return view('home.provider.editLocation', ['locations' => $locationList]);
+        } else {
+            return view('auth.franchisehome'); 
+        }
     }
     public function update(Request $request, $id)
     {
@@ -770,12 +795,12 @@ class ProviderHomeController extends Controller
     }    
     public function editProduct(Request $request):View
     {
-        $id = $request->id;
-        $productList = $this->productService->getById($id);
-//        $productList = $this->productService->getCompleteList();
-        $productCategoryList = $this->productCategoryService->getCompleteList();    
-        // print_r($productList); exit;   
-        return view('home.provider.editProduct', ['productshow' => $productList, 'productCategoryShow' => $productCategoryList]);             
+            $id = $request->id;
+            $productList = $this->productService->getById($id);
+    //        $productList = $this->productService->getCompleteList();
+            $productCategoryList = $this->productCategoryService->getCompleteList();    
+            // print_r($productList); exit;   
+            return view('home.provider.editProduct', ['productshow' => $productList, 'productCategoryShow' => $productCategoryList]);             
     }
     public function providerProductStore(Request $request)
     {

@@ -54,7 +54,7 @@ class ProviderController extends Controller
      */
     public function store(Request $request)
     {
-        // echo "test"; exit;
+
         if(!isset($request->email) || empty($request->email)){
             echo "Please enter email";
             return false;
@@ -140,9 +140,13 @@ class ProviderController extends Controller
     }
     public function show(): View
     {
-        $franchiseList = $this->franchiseService->getCompleteList();
-        $providerList = $this->providerService->getCompleteList();
-        return view('provider.providerlist',['providers' => $providerList,'franchises' => $franchiseList]);        
+        if(session()->get('user_id') != null){        
+            $franchiseList = $this->franchiseService->getCompleteList();
+            $providerList = $this->providerService->getCompleteList();
+            return view('provider.providerlist',['providers' => $providerList,'franchises' => $franchiseList]);
+        } else {
+            return view('auth.login');
+        }                    
     }
     public function create():View
     {

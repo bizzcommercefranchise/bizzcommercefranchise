@@ -42,20 +42,28 @@ class FranchiseController extends Controller
     
     public function show(): View
     {
-        $franchisesList = $this->franchiseService->getCompleteList();
-        return view('franchise.franchiselist',['franchises' => $franchisesList]);
+        if(session()->get('user_id') != null && session()->get('role_id') !=null && session()->get('role_id') ==3){        
+            $franchisesList = $this->franchiseService->getCompleteList();
+            return view('franchise.franchiselist',['franchises' => $franchisesList]);
+        } else {
+            return view('auth.login');
+        }
     }
     
     public function edit(Request $request): View
     {
-       $id = $request->id;
-       $franchiseShow = DB::table('user_credentials')
-                  ->select('*')
-                  ->leftJoin('users','users.franchise_id','=','user_credentials.franchise_id')
-                  ->leftJoin('franchises','franchises.id','=','user_credentials.franchise_id')
-                  ->where('user_credentials.franchise_id', '=', $id)
-                  ->first();
-        return view('franchise.editfranchise',['franchiseshow' => $franchiseShow]);
+        if(session()->get('user_id') != null){        
+            $id = $request->id;
+            $franchiseShow = DB::table('user_credentials')
+                        ->select('*')
+                        ->leftJoin('users','users.franchise_id','=','user_credentials.franchise_id')
+                        ->leftJoin('franchises','franchises.id','=','user_credentials.franchise_id')
+                        ->where('user_credentials.franchise_id', '=', $id)
+                        ->first();
+                return view('franchise.editfranchise',['franchiseshow' => $franchiseShow]);
+            } else {
+                return view('auth.login');
+            }
     }
     
     public function update(Request $request, $id)

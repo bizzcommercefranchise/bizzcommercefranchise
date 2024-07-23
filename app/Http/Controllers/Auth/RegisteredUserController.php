@@ -27,7 +27,13 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        if(session()->get('user_id') != null){
+            return view('auth.register');
+        } else {
+            return view('admin/dashboard');
+        }
+
+
     }
 
     /**
